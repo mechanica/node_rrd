@@ -218,31 +218,20 @@ describe('rrd update', function() {
       
       // console.log("\n** Updates:\n", updates);
       
-      var fetched = [];
-      rrd.fetch(path, { cf: "LAST", start: t0, end: t0 +5, resolution: 1 }, function (time, data) {
-        
-        if (time && data) {
-          fetched.push([time, data]);
-          return;
-        }
-        
-        // Now let's control that the output is what we updated
-        if (!time && !data) {
-          // console.log("\n** fetched:\n", fetched);
+      rrd.fetch(path, { cf: "LAST", start: t0, end: t0 +5, resolution: 1 }, function (err, fetched) {
+        fetched.forEach(function (fetch, index) {
+          if (index >= updates.length) return;
           
-          fetched.forEach(function (fetch, index) {
-            if (index >= updates.length) return;
-            
-            // Times are equal ?
-            assert(fetch[0] === updates[index][0], "fetched times differ from updated times");
-            
-            // data is equal ?
-            assert(JSON.stringify(fetch[1]) === JSON.stringify(updates[index][1]), "fetched data differ from updated data");
-          });
+          // Times are equal ?
+          assert(fetch._time === updates[index][0], "fetched times differ from updated times");
           
-          finished();
-          return;
-        }
+          // data is equal ?
+          delete fetch._time
+          assert(JSON.stringify(fetch) === JSON.stringify(updates[index][1]), "fetched data differ from updated data");
+        });
+        
+        finished();
+        return;
       });
       
     }, updates.length);

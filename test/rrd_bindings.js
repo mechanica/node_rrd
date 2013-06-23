@@ -89,8 +89,8 @@ describe('Native bindings', function(){
 
     	it('should fetch', function (done) {
     		
-    		rrd_bindings.fetch(filename, 'LAST', now()-3600, now(), null, function (time, data) {
-          if (time === null && data === null) done();
+    		rrd_bindings.fetch(filename, 'LAST', now()-3600, now(), null, function (err, data) {
+          if (err === null && data !== null) done();
     		});
         
     	});
